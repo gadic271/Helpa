@@ -1,0 +1,36 @@
+function deleteSelectedClick() {
+    // Собрать ID всех отмеченных чекбоксов
+    var selectedIds = [];
+    $('.user-checkbox:checked').each(function() {
+        selectedIds.push($(this).data('id'));
+    });
+
+    if (selectedIds.length === 0) {
+        alert("No users selected");
+        return;
+    }
+
+    if (!confirm("Delete " + selectedIds.length + " selected user(s)?")) {
+        return;
+    }
+
+    var deletedCount = 0;
+    selectedIds.forEach(function(id) {
+        $.ajax({
+            url: 'http://localhost:8080/api/users/' + id,
+            type: 'DELETE',
+            success: function() {
+                deletedCount++;
+                if (deletedCount === selectedIds.length) {
+                    // Все удалены – обновляем таблицу
+                    userList();
+                }
+            },
+            error: function(request, message, error) {
+                handleException(request, message, error);
+                // Можно прервать или продолжать, но для простоты выведем ошибку и остановим
+                // В реальном проекте лучше обрабатывать аккуратно
+            }
+        });
+    });
+}
